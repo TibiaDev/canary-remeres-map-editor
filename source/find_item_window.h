@@ -32,8 +32,7 @@ class FindDialogListBox;
 class FindItemDialog : public wxDialog {
 public:
 	enum SearchMode {
-		ServerIDs = 0,
-		ClientIDs,
+		ClientIDs = 0,
 		Names,
 		Types,
 		TileTypes,
@@ -78,7 +77,6 @@ private:
 	void RefreshContentsInternal();
 
 	void OnOptionChange(wxCommandEvent &event);
-	void OnServerIdChange(wxCommandEvent &event);
 	void OnClientIdChange(wxCommandEvent &event);
 	void OnText(wxCommandEvent &event);
 	void OnTypeChange(wxCommandEvent &event);
@@ -92,7 +90,6 @@ private:
 	wxRadioBox* typesRadioBox;
 	wxRadioBox* tileTypesRadioBox;
 
-	wxSpinCtrl* serverIdSpin;
 	wxSpinCtrl* clientIdSpin;
 	wxTextCtrl* nameTextInput;
 	wxTimer inputTimer;

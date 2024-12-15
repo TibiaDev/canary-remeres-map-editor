@@ -101,22 +101,6 @@ struct MapVersion {
 	ClientVersionID client;
 };
 
-enum OtbFormatVersion : uint32_t {
-	OTB_VERSION_1 = 1,
-	OTB_VERSION_2 = 2,
-	OTB_VERSION_3 = 3,
-};
-
-// Represents an OTB version
-struct OtbVersion {
-	// '8.60', '7.40' etc.
-	std::string name;
-	// What file format the OTB is in (version 1..3)
-	OtbFormatVersion format_version;
-	// The minor version ID of the OTB (maps to CLIENT_VERSION in OTServ)
-	ClientVersionID id;
-};
-
 // Formats for the metadata file
 enum DatFormat {
 	DAT_FORMAT_UNKNOWN,
@@ -182,7 +166,7 @@ typedef std::vector<ClientVersion*> ClientVersionList;
 
 class ClientVersion {
 public:
-	ClientVersion(OtbVersion otb, std::string versionName, wxString path);
+	ClientVersion(std::string versionName, wxString path);
 	~ClientVersion() = default;
 
 	// Ensures we don't accidentally copy it.
@@ -203,7 +187,7 @@ public:
 	static ClientVersion* getLatestVersion();
 
 	bool operator==(const ClientVersion &o) const {
-		return otb.id == o.otb.id;
+		return o.name == o.name;
 	}
 
 	bool hasValidPaths();
@@ -215,7 +199,6 @@ public:
 
 	ClientVersionID getID() const;
 	MapVersionID getPrefferedMapVersionID() const;
-	OtbVersion getOTBVersion() const;
 	DatFormat getDatFormatForSignature(uint32_t signature) const;
 	ClientVersionList getExtensionsSupported() const;
 
@@ -232,8 +215,6 @@ public:
 	}
 
 private:
-	OtbVersion otb;
-
 	std::string name;
 	bool visible;
 	bool usesFuckedUpCharges;
@@ -249,7 +230,6 @@ private:
 	wxFileName sprites_path;
 
 private:
-	static void loadOTBInfo(pugi::xml_node otb_nodes);
 	static void loadVersion(pugi::xml_node client_node);
 	static void loadVersionExtensions(pugi::xml_node client_node);
 
@@ -257,10 +237,6 @@ private:
 	using VersionMap = std::map<ClientVersionID, ClientVersion*>;
 	static VersionMap client_versions;
 	static ClientVersion* latest_version;
-
-	// All otbs
-	typedef std::map<std::string, OtbVersion> OtbMap;
-	static OtbMap otb_versions;
 };
 
 inline int VersionComparisonPredicate(ClientVersion* a, ClientVersion* b) {

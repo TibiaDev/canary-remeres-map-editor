@@ -68,7 +68,6 @@ public:
 	void OnCut(wxCommandEvent &event);
 	void OnCopy(wxCommandEvent &event);
 	void OnCopyPosition(wxCommandEvent &event);
-	void OnCopyServerId(wxCommandEvent &event);
 	void OnCopyClientId(wxCommandEvent &event);
 	void OnCopyName(wxCommandEvent &event);
 	void OnBrowseTile(wxCommandEvent &event);

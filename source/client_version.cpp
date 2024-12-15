@@ -31,7 +31,6 @@ using json = nlohmann::json;
 
 ClientVersion::VersionMap ClientVersion::client_versions;
 ClientVersion* ClientVersion::latest_version = nullptr;
-ClientVersion::OtbMap ClientVersion::otb_versions;
 
 void ClientVersion::loadVersions() {
 	// Clean up old stuff
@@ -80,13 +79,7 @@ void ClientVersion::loadVersions() {
 
 		for (pugi::xml_node childNode = node.first_child(); childNode; childNode = childNode.next_sibling()) {
 			const std::string &childName = as_lower_str(childNode.name());
-			if (childName == "otbs") {
-				for (pugi::xml_node otbNode = childNode.first_child(); otbNode; otbNode = otbNode.next_sibling()) {
-					if (as_lower_str(otbNode.name()) == "otb") {
-						loadOTBInfo(otbNode);
-					}
-				}
-			} else if (childName == "clients") {
+			if (childName == "clients") {
 				for (pugi::xml_node versionNode = childNode.first_child(); versionNode; versionNode = versionNode.next_sibling()) {
 					if (as_lower_str(versionNode.name()) == "client") {
 						loadVersion(versionNode);
@@ -136,41 +129,6 @@ void ClientVersion::unloadVersions() {
 	}
 	client_versions.clear();
 	latest_version = nullptr;
-	otb_versions.clear();
-}
-
-void ClientVersion::loadOTBInfo(pugi::xml_node otbNode) {
-	if (as_lower_str(otbNode.name()) != "otb") {
-		return;
-	}
-
-	pugi::xml_attribute attribute;
-	if (!(attribute = otbNode.attribute("client"))) {
-		wxLogError("Node 'otb' must contain 'client' tag.");
-		return;
-	}
-
-	OtbVersion otb = { "", OTB_VERSION_3, CLIENT_VERSION_NONE };
-	otb.name = attribute.as_string();
-	if (!(attribute = otbNode.attribute("id"))) {
-		wxLogError("Node 'otb' must contain 'id' tag.");
-		return;
-	}
-
-	otb.id = static_cast<ClientVersionID>(attribute.as_int());
-	if (!(attribute = otbNode.attribute("version"))) {
-		wxLogError("Node 'otb' must contain 'version' tag.");
-		return;
-	}
-
-	OtbFormatVersion versionId = static_cast<OtbFormatVersion>(attribute.as_uint());
-	if (versionId < OTB_VERSION_1 || versionId > OTB_VERSION_3) {
-		wxLogError("Node 'otb' unrecognized format version (version 1..3 supported).");
-		return;
-	}
-
-	otb.format_version = versionId;
-	otb_versions[otb.name] = otb;
 }
 
 void ClientVersion::loadVersion(pugi::xml_node versionNode) {
@@ -192,13 +150,7 @@ void ClientVersion::loadVersion(pugi::xml_node versionNode) {
 		return;
 	}
 
-	const std::string &otbVersionName = attribute.as_string();
-	if (otb_versions.find(otbVersionName) == otb_versions.end()) {
-		wxLogError("Node 'client' 'otb' tag is invalid (couldn't find this otb version).");
-		return;
-	}
-
-	ClientVersion* version = newd ClientVersion(otb_versions[otbVersionName], versionName, wxstr(dataPath));
+	ClientVersion* version = newd ClientVersion(versionName, wxstr(dataPath));
 
 	bool should_be_default = versionNode.attribute("default").as_bool();
 	version->visible = versionNode.attribute("visible").as_bool();
@@ -334,8 +286,7 @@ void ClientVersion::saveVersions() {
 
 // Client version class
 
-ClientVersion::ClientVersion(OtbVersion otb, std::string versionName, wxString path) :
-	otb(otb),
+ClientVersion::ClientVersion(std::string versionName, wxString path) :
 	name(versionName),
 	visible(false),
 	preferred_map_version(MAP_OTBM_UNKNOWN),
@@ -512,7 +463,7 @@ std::string ClientVersion::getName() const {
 }
 
 ClientVersionID ClientVersion::getID() const {
-	return otb.id;
+	return 1286;
 }
 
 bool ClientVersion::isVisible() const {
@@ -525,10 +476,6 @@ void ClientVersion::setClientPath(const FileName &dir) {
 
 MapVersionID ClientVersion::getPrefferedMapVersionID() const {
 	return preferred_map_version;
-}
-
-OtbVersion ClientVersion::getOTBVersion() const {
-	return otb;
 }
 
 ClientVersionList ClientVersion::getExtensionsSupported() const {
