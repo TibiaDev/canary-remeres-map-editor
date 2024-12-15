@@ -47,7 +47,7 @@ void BrowseTileListBox::OnDrawItem(wxDC &dc, const wxRect &rect, size_t index) c
 		return;
 	}
 
-	const auto sprite = g_gui.gfx.getSprite(item->getClientID());
+	const auto sprite = g_gui.gfx.getSprite(item->getID());
 	if (sprite) {
 		sprite->DrawTo(&dc, SPRITE_SIZE_32x32, rect.GetX(), rect.GetY(), rect.GetWidth(), rect.GetHeight());
 	}

@@ -493,13 +493,6 @@ bool ItemDatabase::loadFromOtb(const FileName &datafile, wxString &error, wxArra
 		error = "Expected ROOT_ATTR_VERSION as first node of items.otb!";
 	}
 
-	if (g_settings.getInteger(Config::CHECK_SIGNATURES)) {
-		if (g_gui.GetCurrentVersion().getOTBVersion().format_version != MajorVersion) {
-			error = wxString::Format("Unsupported items.otb version (version %d)", MajorVersion);
-			return false;
-		}
-	}
-
 	uint8_t group;
 	for (auto itemNode = root->getChild(); itemNode != nullptr; itemNode = itemNode->advance()) {
 		if (!itemNode->getU8(group)) {
@@ -552,6 +545,7 @@ bool ItemDatabase::loadItemFromGameXml(pugi::xml_node itemNode, uint16_t id) {
 	}
 
 	auto &item = getItemType(id);
+	item.id = id;
 	item.name = itemNode.attribute("name").as_string();
 	item.editorsuffix = itemNode.attribute("editorsuffix").as_string();
 
@@ -689,7 +683,8 @@ bool ItemDatabase::loadItemFromGameXml(pugi::xml_node itemNode, uint16_t id) {
 
 bool ItemDatabase::loadFromGameXml(const FileName &identifier, wxString &error, wxArrayString &warnings) {
 	pugi::xml_document doc;
-	const auto result = doc.load_file(identifier.GetFullPath().mb_str());
+	auto fileParh = identifier.GetFullPath().mb_str();
+	const auto result = doc.load_file(fileParh);
 	if (!result) {
 		error = "Could not load items.xml (Syntax error?)";
 		return false;

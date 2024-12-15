@@ -355,14 +355,6 @@ bool GUI::LoadDataFiles(wxString &error, wxArrayString &warnings) {
 		return false;
 	}
 
-	g_gui.SetLoadDone(20, "Loading items.otb file...");
-	if (!g_items.loadFromOtb(wxString("data/items/items.otb"), error, warnings)) {
-		error = "Couldn't load items.otb: " + error;
-		g_gui.DestroyLoadBar();
-		UnloadVersion();
-		return false;
-	}
-
 	g_gui.SetLoadDone(30, "Loading items.xml ...");
 	if (!g_items.loadFromGameXml(wxString("data/items/items.xml"), error, warnings)) {
 		warnings.push_back("Couldn't load items.xml: " + error);
